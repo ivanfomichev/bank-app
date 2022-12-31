@@ -13,3 +13,16 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+*.pyc
+*.log
+**/__pycache__/
+.idea/
+/venv*
+.vscode/
+**/*.ipynb
+*~
+\#*\#
+.\#*
+.DS_Store
+.ipynb_checkpoints/
