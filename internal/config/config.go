@@ -11,7 +11,6 @@ import (
 // Config - application config
 type Config struct {
 	Database *DatabaseConfig `mapstructure:"database"`
-	Server   *ServerConfig   `mapstructure:"server"`
 	WebAPI   *WebAPI         `mapstructure:"web_api"`
 }
 
