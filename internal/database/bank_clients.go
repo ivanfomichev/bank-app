@@ -14,12 +14,11 @@ type BankClient struct {
 
 // GetBankClientByID returns bankClient by bank_client_id
 func GetBankClientByID(ctx context.Context, dbc SQLExecutor, clientID string) (*BankClient, error) {
-	var bankClient *BankClient
-	err := dbc.SelectContext(ctx,
-		bankClient,
+	bankClient := new(BankClient)
+	err := dbc.QueryRowxContext(ctx,
 		`SELECT * FROM bank_clients WHERE id = $1`,
 		clientID,
-	)
+	).StructScan(bankClient)
 	if err != nil {
 		log.Printf("failed get client from database")
 		return nil, err
