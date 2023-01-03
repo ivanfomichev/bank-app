@@ -38,3 +38,29 @@ func (c *Client) GetBankClient(ctx context.Context,
 	}
 	return bankClient, nil
 }
+
+// AddAccount is a service method to create client
+func (c *Client) AddAccount(ctx context.Context,
+	request *database.Account,
+) (*database.Account, error) {
+	err := database.AddNewAccount(ctx, c.Db, request)
+	if err != nil {
+		log.Printf("create account for bank client failed")
+		return nil, err
+	}
+	return &database.Account{
+		ID: request.ID,
+	}, nil
+}
+
+// GetAccount is a service method to get client
+func (c *Client) GetAccount(ctx context.Context,
+	clientID string,
+) (*database.Account, error) {
+	bankClient, err := database.GetAccountByID(ctx, c.Db, clientID)
+	if err != nil {
+		log.Printf("get bank client failed")
+		return nil, err
+	}
+	return bankClient, nil
+}

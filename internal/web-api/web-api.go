@@ -12,7 +12,7 @@ import (
 	"github.com/ivanfomichev/bank-app/internal/config"
 )
 
-// API contains settings for the metrics api
+// API contains settings for the web api
 type API struct {
 	conf           *config.WebAPI
 	internalServer *http.Server
@@ -83,10 +83,13 @@ func newInternalRoutes(env *RouteHandlers, webAPIConf *config.APIConf) http.Hand
 	)
 	router.Group(func(clientsGroup chi.Router) {
 		clientsGroup.Route("/clients", func(clientsRouter chi.Router) {
-			clientsRouter.Post("/", env.PostBankClient)
 			clientsRouter.Route("/{client_id}", func(clRouter chi.Router) {
 				clRouter.Get("/", env.GetBankClientByID)
+				clRouter.Post("/", env.PostAccount)
+				// clRouter.Route("/{account_id}", func(accRouter chi.Router) {
+				// })
 			})
+			clientsRouter.Post("/", env.PostBankClient)
 		})
 	})
 	return router

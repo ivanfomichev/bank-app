@@ -16,8 +16,8 @@ type BankClient struct {
 func GetBankClientByID(ctx context.Context, dbc SQLExecutor, clientID string) (*BankClient, error) {
 	var bankClient *BankClient
 	err := dbc.SelectContext(ctx,
-		&bankClient,
-		`SELECT * FROM bank_clients WHERE bank_client = $1`,
+		bankClient,
+		`SELECT * FROM bank_clients WHERE id = $1`,
 		clientID,
 	)
 	if err != nil {
