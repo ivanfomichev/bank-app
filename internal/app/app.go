@@ -3,7 +3,7 @@ package app
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/ivanfomichev/bank-app/internal/clients"
 	conf "github.com/ivanfomichev/bank-app/internal/config"
@@ -23,7 +23,7 @@ func Start(ctx context.Context, conf *conf.Config) (StopFunc, <-chan error) {
 
 	appsrv, err := initAppServices(ctx, conf)
 	if err != nil {
-		fmt.Println("failed init application services")
+		log.Printf("failed init application services")
 		errCh <- err
 		return func() {}, errCh
 	}
@@ -39,7 +39,7 @@ func Start(ctx context.Context, conf *conf.Config) (StopFunc, <-chan error) {
 	stop := StopFunc(
 		func() {
 			if stopErr := webAPI.Stop(ctx); stopErr != nil {
-				fmt.Println("stop web api failed")
+				log.Printf("stop web api failed")
 			}
 		})
 	return stop, errCh
@@ -51,13 +51,13 @@ type StopFunc func()
 
 // Stop - graceful finishing function
 func (a *appServices) Stop() {
-	fmt.Printf("Application has been gracefully stopped")
+	log.Printf("Application has been gracefully stopped")
 }
 
 func initAppServices(ctx context.Context, conf *conf.Config) (*appServices, error) {
 	dbClient, err := database.OpenDatabase(ctx, conf.Database, database.Reg())
 	if err != nil {
-		fmt.Println("create database client failed")
+		log.Printf("create database client failed")
 		return nil, err
 	}
 	return &appServices{

@@ -2,7 +2,7 @@ package clients
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/ivanfomichev/bank-app/internal/database"
 	"github.com/jmoiron/sqlx"
@@ -21,7 +21,7 @@ func (c *Client) AddBankClient(ctx context.Context,
 
 	err := database.AddNewBankClient(ctx, c.Db, request)
 	if err != nil {
-		fmt.Println("create bank client failed")
+		log.Printf("create bank client failed")
 		return nil, err
 	}
 	return &database.BankClient{

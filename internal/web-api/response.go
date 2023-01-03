@@ -3,7 +3,7 @@ package webapi
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"google.golang.org/grpc/codes"
@@ -141,7 +141,7 @@ func makeResponse(ctx context.Context, w http.ResponseWriter, apiResponse *APIRe
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(apiResponse.Header)
 	if err := json.NewEncoder(w).Encode(apiResponse.Body); err != nil {
-		fmt.Println("write response failed")
+		log.Printf("write response failed")
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

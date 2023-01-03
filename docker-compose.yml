@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  test-database:
+    image: 'postgres:12'
+    hostname: bankapp-database-dev
+    restart: unless-stopped
+    ports:
+      - '65432:5432'
+    environment:
+      - POSTGRES_DB=test_bankapp
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qwerty

@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/ivanfomichev/bank-app/internal/app"
@@ -22,10 +21,10 @@ func main() {
 	err, ok := <-errCh
 	if ok {
 		if err != nil {
-			fmt.Println("application failed")
+			log.Printf("application failed")
 		}
 	} else {
-		fmt.Println("error chan closed")
+		log.Printf("error chan closed")
 	}
 	stopMe()
 }

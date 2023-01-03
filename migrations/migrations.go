@@ -3,7 +3,7 @@ package migrations
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v4"
 	migrate "github.com/rubenv/sql-migrate"
@@ -33,24 +33,24 @@ func New(conf *config.Config, direction migrate.MigrationDirection, count int) *
 // Run - start new migrations
 func (o *Options) Run(ctx context.Context) error {
 
-	fmt.Println("Applying migrations")
+	log.Printf("Applying migrations")
 
 	dbConn, err := database.OpenDatabase(ctx, o.conf.Database, database.Reg())
 	if err != nil {
-		fmt.Println("db connect failed")
+		log.Printf("db connect failed")
 	}
 	defer func() {
 		clErr := dbConn.Close()
 		if clErr != nil {
-			fmt.Println("closing db connection is failed")
+			log.Printf("closing db connection is failed")
 		}
 	}()
 
-	fmt.Printf("Migrations destination is: %v", o.conf.Database.ConnString)
+	log.Printf("Migrations destination is: %v", o.conf.Database.ConnString)
 
 	dbConf, err := pgx.ParseConfig(o.conf.Database.ConnString)
 	if err != nil {
-		fmt.Println("failed parse database connection string")
+		log.Printf("failed parse database connection string")
 	}
 	schemaName, ok := dbConf.RuntimeParams["search_path"]
 	if !ok {
@@ -62,8 +62,8 @@ func (o *Options) Run(ctx context.Context) error {
 		o.direction, o.count,
 	)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err.Error())
 	}
-	fmt.Printf("Applied %v migrations", count)
+	log.Printf("Applied %v migrations", count)
 	return err
 }
