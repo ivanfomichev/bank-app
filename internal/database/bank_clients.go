@@ -13,7 +13,7 @@ type BankClient struct {
 }
 
 // GetBankClientByID returns bankClient by bank_client_id
-func GetBankClientByID(ctx context.Context, dbc SQLExecutor, clientID uuid.UUID) (*BankClient, error) {
+func GetBankClientByID(ctx context.Context, dbc SQLExecutor, clientID string) (*BankClient, error) {
 	var bankClient *BankClient
 	err := dbc.SelectContext(ctx,
 		&bankClient,

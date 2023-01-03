@@ -6,12 +6,14 @@ web_api:
     addr: :58310
     cors:
       allowed_origins:
-        - "http://localhost:*"
-        - "https://localhost:*"
+        - "*"
       allowed_methods:
-        - "POST"
+        # - "POST"
         - "GET"
+        - "PUT"
+        - "DELETE"
         - "OPTIONS"
       allowed_headers:
         - "*"
-      debug: false
+      debug: true
+      allow_creds: true

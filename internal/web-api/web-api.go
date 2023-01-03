@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/ivanfomichev/bank-app/internal/clients"
 	"github.com/ivanfomichev/bank-app/internal/config"
 )
@@ -77,25 +78,26 @@ func (api *API) Stop(ctx context.Context) error {
 // nolint:funlen
 func newInternalRoutes(env *RouteHandlers, webAPIConf *config.APIConf) http.Handler {
 	router := chi.NewRouter()
-
-	router.Group(func(authGroup chi.Router) {
-		authGroup.Route("/clients", func(clientsRouter chi.Router) {
+	router.Use(
+		withCORS(webAPIConf.Cors),
+	)
+	router.Group(func(clientsGroup chi.Router) {
+		clientsGroup.Route("/clients", func(clientsRouter chi.Router) {
 			clientsRouter.Post("/", env.PostBankClient)
-			// clientsRouter.Get("/", env.dbclient.GetClients)
-			// clientsRouter.Route("/{client_id}", func(clientRouter chi.Router) {
-			// 	clientRouter.Get("/", env.dbclient.GetClient)
-			// 	clientRouter.Route("/{account_id}", func(accountRouter chi.Router) {
-			// 		accountRouter.Post("/", env.dbclient.PostAccount)
-			// 		accountRouter.Get("/", env.dbclient.GetAccountByID)
-			// 		accountRouter.Get("/", env.dbclient.GetTransactions)
-			// 		accountRouter.Route("/{transaction_id}", func(transactionRouter chi.Router) {
-			// 			transactionRouter.Post("/", env.dbclient.PostTransaction)
-			// 			transactionRouter.Get("/", env.dbclient.GetTransactionByID)
-			// 		})
-			// 	})
-			// })
+			clientsRouter.Route("/{client_id}", func(clRouter chi.Router) {
+				clRouter.Get("/", env.GetBankClientByID)
+			})
 		})
-
 	})
 	return router
+}
+
+func withCORS(conf *config.Cors) func(http.Handler) http.Handler {
+	return cors.Handler(cors.Options{
+		AllowedOrigins:   conf.AllowedOrigins,
+		AllowedMethods:   conf.AllowedMethods,
+		AllowedHeaders:   conf.AllowedHeaders,
+		Debug:            conf.Debug,
+		AllowCredentials: conf.AllowCreds,
+	})
 }

@@ -17,8 +17,6 @@ type Client struct {
 func (c *Client) AddBankClient(ctx context.Context,
 	request *database.BankClient,
 ) (*database.BankClient, error) {
-	// logger := applog.FromContext(ctx)
-
 	err := database.AddNewBankClient(ctx, c.Db, request)
 	if err != nil {
 		log.Printf("create bank client failed")
@@ -27,4 +25,16 @@ func (c *Client) AddBankClient(ctx context.Context,
 	return &database.BankClient{
 		ID: request.ID,
 	}, nil
+}
+
+// GetBankClient is a service method to get client
+func (c *Client) GetBankClient(ctx context.Context,
+	clientID string,
+) (*database.BankClient, error) {
+	bankClient, err := database.GetBankClientByID(ctx, c.Db, clientID)
+	if err != nil {
+		log.Printf("get bank client failed")
+		return nil, err
+	}
+	return bankClient, nil
 }
