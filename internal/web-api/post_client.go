@@ -43,12 +43,7 @@ func (env *RouteHandlers) PostBankClient(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	request := &database.BankClient{
-		ID:        uuid.New(),
-		Name:      bankClientData.Name,
-		Surname:   bankClientData.Surname,
-		BirthDate: bankClientData.BirthDate,
-		Passport:  bankClientData.Passport,
-		Job:       bankClientData.Job,
+		ID: uuid.New(),
 	}
 	bankClient, err := env.dbclient.AddBankClient(ctx, request)
 	if err != nil {
