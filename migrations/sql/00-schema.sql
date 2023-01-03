@@ -25,14 +25,14 @@ CREATE TABLE accounts
 CREATE INDEX accounts_bank_client_id_idx ON accounts (bank_client_id);
 
 CREATE TYPE transaction_type AS ENUM (
-    'USD',
-    'COP',
-    'MXN'
+    'deposit',
+    'withdraw',
+    'transfer'
     );
 
 CREATE TYPE transaction_status AS ENUM (
     'done',
-    'failed',
+    'failed'
     );
 
 CREATE TABLE transactions
