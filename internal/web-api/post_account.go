@@ -9,26 +9,29 @@ import (
 	"github.com/ivanfomichev/bank-app/internal/database"
 )
 
-// AccountsResponse is a DTO for Accounts description
-type AccountResponse struct {
+// PostResponse is a DTO for BankClients description
+type PostResponse struct {
 	ID uuid.UUID `json:"id"`
 }
 
 func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	clID := chi.URLParam(r, "client_id")
-	request := &database.Account{
-		ID:           uuid.New(),
-		BankClientID: clID,
-	}
-	account, err := env.dbclient.AddAccount(ctx, request)
+	req := new(database.Account)
+	err := readValidateInput(ctx, r.Body, req)
 	if err != nil {
-		log.Printf("create client failed")
-		InternalErrorResponse(ctx, w, "create client failed")
+		log.Printf("bad input")
+		InternalErrorResponse(ctx, w, "create account failed")
+	}
+	req.ID = uuid.New()
+	req.BankClientID = clID
+	account, err := env.dbclient.AddAccount(ctx, req)
+	if err != nil {
+		log.Printf("create account failed")
+		InternalErrorResponse(ctx, w, "create account failed")
 		return
 	}
-	response := &AccountResponse{
+	OKResponse(ctx, w, PostResponse{
 		ID: account.ID,
-	}
-	OKResponse(ctx, w, response)
+	})
 }

@@ -53,14 +53,14 @@ func (c *Client) AddAccount(ctx context.Context,
 	}, nil
 }
 
-// GetAccount is a service method to get client
-func (c *Client) GetAccount(ctx context.Context,
-	clientID string,
+// GetAccount is a service method to get account
+func (c *Client) GetAccountByID(ctx context.Context,
+	accountID string,
 ) (*database.Account, error) {
-	bankClient, err := database.GetAccountByID(ctx, c.Db, clientID)
+	account, err := database.GetAccountByID(ctx, c.Db, accountID)
 	if err != nil {
-		log.Printf("get bank client failed")
+		log.Printf("get account failed")
 		return nil, err
 	}
-	return bankClient, nil
+	return account, nil
 }

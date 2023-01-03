@@ -83,13 +83,16 @@ func newInternalRoutes(env *RouteHandlers, webAPIConf *config.APIConf) http.Hand
 	)
 	router.Group(func(clientsGroup chi.Router) {
 		clientsGroup.Route("/clients", func(clientsRouter chi.Router) {
+			clientsRouter.Post("/", env.PostBankClient)
 			clientsRouter.Route("/{client_id}", func(clRouter chi.Router) {
 				clRouter.Get("/", env.GetBankClientByID)
 				clRouter.Post("/", env.PostAccount)
-				// clRouter.Route("/{account_id}", func(accRouter chi.Router) {
-				// })
 			})
-			clientsRouter.Post("/", env.PostBankClient)
+		})
+	})
+	router.Group(func(accountsGroup chi.Router) {
+		accountsGroup.Route("/accounts/{account_id}", func(accountRouter chi.Router) {
+			accountRouter.Get("/", env.GetAccountByID)
 		})
 	})
 	return router

@@ -8,11 +8,6 @@ import (
 	"github.com/ivanfomichev/bank-app/internal/database"
 )
 
-// BankClientsResponse is a DTO for BankClients description
-type BankClientsResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 func (env *RouteHandlers) PostBankClient(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	request := &database.BankClient{
@@ -24,7 +19,7 @@ func (env *RouteHandlers) PostBankClient(w http.ResponseWriter, r *http.Request)
 		InternalErrorResponse(ctx, w, "create client failed")
 		return
 	}
-	response := &BankClientsResponse{
+	response := &PostResponse{
 		ID: bankClient.ID,
 	}
 	OKResponse(ctx, w, response)

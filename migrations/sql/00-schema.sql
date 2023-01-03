@@ -17,7 +17,7 @@ CREATE TABLE accounts
     id             uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     bank_client_id uuid NOT NULL,
     currency       currencies NOT NULL,
-    balance        VARCHAR(256) NOT NULL
+    balance        INTEGER NOT NULL
 );
 CREATE INDEX accounts_bank_client_id_idx ON accounts (bank_client_id);
 
