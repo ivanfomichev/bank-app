@@ -36,7 +36,6 @@ CREATE TABLE transactions
 (
     id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     account_id uuid NOT NULL,
-    tr_date    TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     tr_type    transaction_type NOT NULL,
     tr_status  transaction_status NOT NULL
 );

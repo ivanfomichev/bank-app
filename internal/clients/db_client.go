@@ -64,3 +64,13 @@ func (c *Client) GetAccountByID(ctx context.Context,
 	}
 	return account, nil
 }
+
+// GetAccount is a service method to get account
+func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, error) {
+	account, err := database.GetTransactions(ctx, c.Db)
+	if err != nil {
+		log.Printf("get account failed")
+		return nil, err
+	}
+	return account, nil
+}
