@@ -1,0 +1,5 @@
+database:
+#  conn_string: "postgresql://user:password@localhost:15432/db_name?sslmode=disable"
+  conn_string: "postgresql://postgres:password@localhost:65432/bankapp?sslmode=disable" # Test database
+server:
+  addr: ":8080"
