@@ -34,10 +34,11 @@ CREATE TYPE transaction_status AS ENUM (
 
 CREATE TABLE transactions
 (
-    id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    account_id uuid NOT NULL,
-    tr_type    transaction_type NOT NULL,
-    tr_status  transaction_status NOT NULL
+    id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    account_id      uuid NOT NULL,
+    account_to_id   uuid,
+    tr_type         transaction_type NOT NULL,
+    tr_status       transaction_status NOT NULL
 );
 CREATE INDEX transactions_account_id_idx ON transactions (account_id);
 -- +migrate StatementEnd

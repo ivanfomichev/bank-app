@@ -13,7 +13,6 @@ require (
 	github.com/luna-duclos/instrumentedsql/opentracing v0.0.0-20201103091713-40d03108b6f4
 	github.com/rubenv/sql-migrate v1.2.0
 	github.com/spf13/viper v1.14.0
-	google.golang.org/grpc v1.50.1
 )
 
 require (

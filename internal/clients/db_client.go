@@ -67,10 +67,24 @@ func (c *Client) GetAccountByID(ctx context.Context,
 
 // GetAccount is a service method to get account
 func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, error) {
-	account, err := database.GetTransactions(ctx, c.Db)
+	transactions, err := database.GetTransactions(ctx, c.Db)
 	if err != nil {
-		log.Printf("get account failed")
+		log.Printf("get transactions failed")
 		return nil, err
 	}
-	return account, nil
+	return transactions, nil
+}
+
+// AddTransaction is a service method to create transaction
+func (c *Client) AddTransaction(ctx context.Context,
+	request *database.Transaction,
+) (*database.Transaction, error) {
+	err := database.AddNewTransaction(ctx, c.Db, request)
+	if err != nil {
+		log.Printf("create transaction for failed")
+		return nil, err
+	}
+	return &database.Transaction{
+		ID: request.ID,
+	}, nil
 }
