@@ -1,13 +1,28 @@
 version: '3.3'
 
 services:
-  test-database:
+  bankapp:
+    image: 'leoficus/bankapp:latest'
+    hostname: bankapp
+    ports:
+      - "58001:58001"
+    networks:
+      - app
+    depends_on:
+      - db
+  db:
     image: 'postgres:12'
-    hostname: bankapp-database-dev
+    hostname: db
     restart: unless-stopped
     ports:
       - '65432:5432'
+    networks:
+      - app
     environment:
       - POSTGRES_DB=test_bankapp
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=qwerty
+
+networks:
+  app:
+    driver: bridge

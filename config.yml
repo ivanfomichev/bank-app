@@ -3,7 +3,7 @@ database:
   conn_string: "postgresql://postgres:qwerty@localhost:65432/test_bankapp?sslmode=disable" # Test database
 web_api:
   internal:
-    addr: :58310
+    addr: :58001
     cors:
       allowed_origins:
         - "http://localhost:*"
