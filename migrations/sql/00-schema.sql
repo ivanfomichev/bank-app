@@ -27,11 +27,6 @@ CREATE TYPE transaction_type AS ENUM (
     'transfer'
 );
 
-CREATE TYPE transaction_status AS ENUM (
-    'done',
-    'failed'
-);
-
 CREATE TABLE transactions
 (
     id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -39,7 +34,6 @@ CREATE TABLE transactions
     account_to_id   uuid,
     amount          INTEGER NOT NULL,
     tr_type         transaction_type NOT NULL
-    tr_status       transaction_status NOT NULL
 );
 CREATE INDEX transactions_account_id_idx ON transactions (account_id);
 -- +migrate StatementEnd
@@ -48,7 +42,6 @@ CREATE INDEX transactions_account_id_idx ON transactions (account_id);
 DROP TABLE bank_clients;
 DROP TYPE currencies;
 DROP TYPE transaction_type;
-DROP TYPE transaction_status;
 DROP TABLE accounts;
 DROP TABLE transactions;
 

@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-playground/validator/v10"
 )
 
 func (env *RouteHandlers) GetBankClientByID(w http.ResponseWriter, r *http.Request) {
@@ -28,13 +27,8 @@ func (env *RouteHandlers) GetBankClientByID(w http.ResponseWriter, r *http.Reque
 }
 
 func readValidateInput(ctx context.Context, body io.Reader, target interface{}) error {
-	validate := validator.New()
 	if err := json.NewDecoder(body).Decode(target); err != nil {
 		log.Printf("read input failed")
-		return err
-	}
-	if err := validate.Struct(target); err != nil {
-		log.Printf("validate input failed")
 		return err
 	}
 	return nil

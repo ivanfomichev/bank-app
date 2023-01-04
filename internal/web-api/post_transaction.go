@@ -8,14 +8,6 @@ import (
 	"github.com/ivanfomichev/bank-app/internal/database"
 )
 
-// type PostTransactionRequest struct {
-// 	ID          uuid.UUID `json:"id" validate:"required"`
-// 	AccountID   uuid.UUID `json:"account_id" validate:"required"`
-// 	AccountToID uuid.UUID `json:"account_to_id"`
-// 	TrType      string    `json:"tr_type" validate:"required"`
-// 	TrStatus    string    `json:"tr_status"`
-// }
-
 func (env *RouteHandlers) PostTransaction(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	req := new(database.Transaction)
@@ -23,12 +15,13 @@ func (env *RouteHandlers) PostTransaction(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Printf("bad input")
 		BadInputResponse(ctx, w, "create transaction failed")
+		return
 	}
 	req.ID = uuid.New()
 	account, err := env.dbclient.AddTransaction(ctx, req)
 	if err != nil {
 		log.Printf("create transaction failed")
-		InternalErrorResponse(ctx, w, "create transaction failed")
+		InternalErrorResponse(ctx, w, err.Error())
 		return
 	}
 	OKResponse(ctx, w, PostResponse{
