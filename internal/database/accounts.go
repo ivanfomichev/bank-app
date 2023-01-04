@@ -12,7 +12,7 @@ type Account struct {
 	ID           uuid.UUID `db:"id"`
 	BankClientID string    `db:"bank_client_id"`
 	Currency     string    `db:"currency"`
-	Balance      *int32    `db:"balance"`
+	Balance      int32     `db:"balance"`
 }
 
 // GetAccount returns account by account_id
@@ -37,4 +37,14 @@ func AddNewAccount(ctx context.Context, dbc SQLExecutor, account *Account) error
 		account,
 	)
 	return err
+}
+
+// UpdateAccountByID - updater for DTO
+func UpdateAccountByID(ctx context.Context, dbc SQLExecutor, clientID uuid.UUID, balance int32) error {
+	return updateTableColWithProvidedKey(ctx,
+		dbc,
+		`UPDATE accounts SET balance = $1 WHERE id = $2`,
+		balance,
+		clientID,
+	)
 }

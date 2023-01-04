@@ -34,3 +34,4 @@ func AddNewBankClient(ctx context.Context, dbc SQLExecutor, bankClient *BankClie
 		bankClient,
 	)
 }
+

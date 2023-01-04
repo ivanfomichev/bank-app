@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/ivanfomichev/bank-app/internal/database"
@@ -39,7 +40,7 @@ func (c *Client) GetBankClient(ctx context.Context,
 	return bankClient, nil
 }
 
-// AddAccount is a service method to create client
+// AddAccount is a service method to create account
 func (c *Client) AddAccount(ctx context.Context,
 	request *database.Account,
 ) (*database.Account, error) {
@@ -65,7 +66,7 @@ func (c *Client) GetAccountByID(ctx context.Context,
 	return account, nil
 }
 
-// GetAccount is a service method to get account
+// GetTransactions is a service method to get transactions
 func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, error) {
 	transactions, err := database.GetTransactions(ctx, c.Db)
 	if err != nil {
@@ -79,16 +80,120 @@ func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, 
 func (c *Client) AddTransaction(ctx context.Context,
 	request *database.Transaction,
 ) (*database.Transaction, error) {
-	if request.TrType == "withdraw" {
-		account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
-		if err != nil {
-			log.Printf("account not found")
-			return nil, err
+	switch recType := request.TrType; recType {
+	case "withdraw":
+		{
+			account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
+			if err != nil {
+				log.Printf("account not found")
+				return nil, err
+			}
+			if account.Balance >= request.Amount {
+				tx, err := c.Db.BeginTxx(ctx, nil)
+				if err != nil {
+					log.Printf("failed to start db_transaction")
+					return nil, err
+				}
+				err = database.AddNewTransaction(ctx, tx, request)
+				if err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				err = database.UpdateAccountByID(ctx, tx, request.AccountID, request.Amount)
+				if err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				err = tx.Commit()
+				if err != nil {
+					log.Printf("failed to commit db_transaction")
+					return nil, err
+				}
+			} else {
+				err := errors.New("not enough money")
+				log.Printf("not enough money")
+				return nil, err
+			}
 		}
-		if account.Balance >= request.Amount:
+	case "deposit":
+		{
+			account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
+			if err != nil {
+				log.Printf("account not found")
+				return nil, err
+			}
+			newBalance := account.Balance + request.Amount
+			tx, err := c.Db.BeginTxx(ctx, nil)
+			if err != nil {
+				log.Printf("failed to start db_transaction")
+				return nil, err
+			}
+			err = database.AddNewTransaction(ctx, tx, request)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			err = database.UpdateAccountByID(ctx, tx, request.AccountID, newBalance)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			err = tx.Commit()
+			if err != nil {
+				log.Printf("failed to commit db_transaction")
+				return nil, err
+			}
+		}
+	case "transfer":
+		{
+			accountFrom, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
+			if err != nil {
+				log.Printf("from account not found")
+				return nil, err
+			}
+			accountTo, err := database.GetAccountByID(ctx, c.Db, request.AccountToID.String())
+			if err != nil {
+				log.Printf("to account not found")
+				return nil, err
+			}
+			if accountFrom.Currency != accountTo.Currency {
+				err := errors.New("transaction for different currencies not allowed")
+				log.Printf("transaction for different currencies not allowed")
+				return nil, err
+			}
+
+			if accountFrom.Balance >= request.Amount{
+				tx, err := c.Db.BeginTxx(ctx, nil)
+				if err != nil {
+					log.Printf("failed to start db_transaction")
+					return nil, err
+				}
+				err = database.AddNewTransaction(ctx, tx, request)
+				if err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				newToBalance := accountTo.Balance + request.Amount
+				err = database.UpdateAccountByID(ctx, tx, request.AccountToID, newToBalance)
+				if err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				newFromBalance := accountFrom.Balance - request.Amount
+				err = database.UpdateAccountByID(ctx, tx, request.AccountID, newFromBalance)
+				if err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				err = tx.Commit()
+				if err != nil {
+					log.Printf("failed to commit db_transaction")
+					return nil, err
+				}
+			}
+		}
 	}
 
-	
 	err := database.AddNewTransaction(ctx, c.Db, request)
 	if err != nil {
 		log.Printf("create transaction for failed")

@@ -12,7 +12,7 @@ type Transaction struct {
 	ID          uuid.UUID `json:"id"`
 	AccountID   uuid.UUID `json:"account_id"`
 	AccountToID uuid.UUID `json:"account_to_id"`
-	Amount      *int32    `json:"amount"`
+	Amount      int32     `json:"amount"`
 	TrType      string    `json:"tr_type"`
 	TrStatus    string    `json:"tr_status"`
 }
