@@ -79,6 +79,16 @@ func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, 
 func (c *Client) AddTransaction(ctx context.Context,
 	request *database.Transaction,
 ) (*database.Transaction, error) {
+	if request.TrType == "withdraw" {
+		account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
+		if err != nil {
+			log.Printf("account not found")
+			return nil, err
+		}
+		if account.Balance >= request.Amount:
+	}
+
+	
 	err := database.AddNewTransaction(ctx, c.Db, request)
 	if err != nil {
 		log.Printf("create transaction for failed")
