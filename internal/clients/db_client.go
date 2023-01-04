@@ -162,7 +162,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 				return nil, err
 			}
 
-			if accountFrom.Balance >= request.Amount{
+			if accountFrom.Balance >= request.Amount {
 				tx, err := c.Db.BeginTxx(ctx, nil)
 				if err != nil {
 					log.Printf("failed to start db_transaction")
@@ -190,6 +190,10 @@ func (c *Client) AddTransaction(ctx context.Context,
 					log.Printf("failed to commit db_transaction")
 					return nil, err
 				}
+			} else {
+				err := errors.New("not enough money")
+				log.Printf("not enough money")
+				return nil, err
 			}
 		}
 	}
