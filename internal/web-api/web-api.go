@@ -98,7 +98,7 @@ func newInternalRoutes(env *RouteHandlers, webAPIConf *config.APIConf) http.Hand
 	router.Group(func(transactionsGroup chi.Router) {
 		transactionsGroup.Route("/transactions", func(trRouter chi.Router) {
 			trRouter.Get("/", env.GetTransactions)
-			// trRouter.Post("/", env.PostTransaction)
+			trRouter.Post("/", env.PostTransaction)
 		})
 	})
 	return router

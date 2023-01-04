@@ -22,13 +22,13 @@ func (env *RouteHandlers) PostTransaction(w http.ResponseWriter, r *http.Request
 	err := readValidateInput(ctx, r.Body, req)
 	if err != nil {
 		log.Printf("bad input")
-		BadInputResponse(ctx, w, "create account failed")
+		BadInputResponse(ctx, w, "create transaction failed")
 	}
 	req.ID = uuid.New()
 	account, err := env.dbclient.AddTransaction(ctx, req)
 	if err != nil {
-		log.Printf("create account failed")
-		InternalErrorResponse(ctx, w, "create account failed")
+		log.Printf("create transaction failed")
+		InternalErrorResponse(ctx, w, "create transaction failed")
 		return
 	}
 	OKResponse(ctx, w, PostResponse{

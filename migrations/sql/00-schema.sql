@@ -38,8 +38,7 @@ CREATE TABLE transactions
     account_id      uuid NOT NULL,
     account_to_id   uuid,
     amount          INTEGER NOT NULL,
-    tr_type         transaction_type NOT NULL,
-    tr_status       transaction_status NOT NULL
+    tr_type         transaction_type NOT NULL
 );
 CREATE INDEX transactions_account_id_idx ON transactions (account_id);
 -- +migrate StatementEnd

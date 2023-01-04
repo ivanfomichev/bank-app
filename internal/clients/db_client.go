@@ -145,8 +145,9 @@ func (c *Client) AddTransaction(ctx context.Context,
 			}
 		}
 	case "transfer":
-		{
-			accountFrom, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
+		{	
+			reqId := request.AccountID.String()
+			accountFrom, err := database.GetAccountByID(ctx, c.Db, reqId)
 			if err != nil {
 				log.Printf("from account not found")
 				return nil, err
@@ -200,7 +201,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 
 	err := database.AddNewTransaction(ctx, c.Db, request)
 	if err != nil {
-		log.Printf("create transaction for failed")
+		log.Printf("create transaction failed")
 		return nil, err
 	}
 	return &database.Transaction{
