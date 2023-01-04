@@ -75,7 +75,7 @@ func InternalErrorResponse(ctx context.Context, w http.ResponseWriter, msg strin
 			Status: ErrorStatus(),
 			Errors: []APIError{
 				{
-					Code:    "github.com/ivanfomichev/bank-app/internal_error",
+					Code:    "internal_error",
 					Message: msg,
 				},
 			},

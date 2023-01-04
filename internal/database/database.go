@@ -114,36 +114,3 @@ func updateTableColWithProvidedKey(
 	}
 	return err
 }
-
-func scanTableRowToObject(
-	ctx context.Context, dbc sqlx.QueryerContext, query string, obj interface{}, keyID uuid.UUID,
-) error {
-	if obj == nil {
-		return errors.New("no object provided")
-	}
-	err := dbc.QueryRowxContext(ctx, query, keyID).StructScan(obj)
-	if err != nil {
-		log.Printf("failed find object")
-	}
-	return err
-}
-
-func deleteAllRowsWithProvidedKey(
-	ctx context.Context, dbc sqlx.ExecerContext, query string, keyID uuid.UUID,
-) (int64, error) {
-	r, err := dbc.ExecContext(ctx, query, keyID)
-	if err != nil {
-		log.Printf("failed remove rows")
-		return 0, err
-	}
-	affected, err := r.RowsAffected()
-	if err != nil {
-		log.Printf("cannot get results of update")
-		return 0, nil
-	}
-	if affected == 0 {
-		log.Printf("unknown id")
-		return affected, sql.ErrNoRows
-	}
-	return affected, err
-}

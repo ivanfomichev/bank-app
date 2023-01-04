@@ -2,7 +2,6 @@ package clients
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/ivanfomichev/bank-app/internal/database"
@@ -94,6 +93,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 					log.Printf("failed to start db_transaction")
 					return nil, err
 				}
+				request.TrStatus = "done"
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()
@@ -110,9 +110,16 @@ func (c *Client) AddTransaction(ctx context.Context,
 					return nil, err
 				}
 			} else {
-				err := errors.New("not enough money")
 				log.Printf("not enough money")
-				return nil, err
+				request.TrStatus = "failed"
+				err = database.AddNewTransaction(ctx, c.Db, request)
+				if err != nil {
+					log.Printf("failed to commit db_transaction")
+					return nil, err
+				}
+				return &database.Transaction{
+					ID: request.ID,
+				}, nil
 			}
 		}
 	case "deposit":
@@ -128,6 +135,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 				log.Printf("failed to start db_transaction")
 				return nil, err
 			}
+			request.TrStatus = "done"
 			err = database.AddNewTransaction(ctx, tx, request)
 			if err != nil {
 				tx.Rollback()
@@ -145,7 +153,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 			}
 		}
 	case "transfer":
-		{	
+		{
 			reqId := request.AccountID.String()
 			accountFrom, err := database.GetAccountByID(ctx, c.Db, reqId)
 			if err != nil {
@@ -158,9 +166,16 @@ func (c *Client) AddTransaction(ctx context.Context,
 				return nil, err
 			}
 			if accountFrom.Currency != accountTo.Currency {
-				err := errors.New("transaction for different currencies not allowed")
 				log.Printf("transaction for different currencies not allowed")
-				return nil, err
+				request.TrStatus = "failed"
+				err = database.AddNewTransaction(ctx, c.Db, request)
+				if err != nil {
+					log.Printf("failed to commit db_transaction")
+					return nil, err
+				}
+				return &database.Transaction{
+					ID: request.ID,
+				}, nil
 			}
 
 			if accountFrom.Balance >= request.Amount {
@@ -169,6 +184,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 					log.Printf("failed to start db_transaction")
 					return nil, err
 				}
+				request.TrStatus = "done"
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()
@@ -192,19 +208,18 @@ func (c *Client) AddTransaction(ctx context.Context,
 					return nil, err
 				}
 			} else {
-				err := errors.New("not enough money")
 				log.Printf("not enough money")
-				return nil, err
+				request.TrStatus = "failed"
+				err = database.AddNewTransaction(ctx, c.Db, request)
+				if err != nil {
+					log.Printf("failed to commit db_transaction")
+					return nil, err
+				}
+				return &database.Transaction{
+					ID: request.ID,
+				}, nil
 			}
 		}
 	}
-
-	err := database.AddNewTransaction(ctx, c.Db, request)
-	if err != nil {
-		log.Printf("create transaction failed")
-		return nil, err
-	}
-	return &database.Transaction{
-		ID: request.ID,
-	}, nil
+	return nil, nil
 }
