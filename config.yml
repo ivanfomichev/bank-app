@@ -1,6 +1,6 @@
 database:
-#  conn_string: "postgresql://user:password@localhost:15432/db_name?sslmode=disable"
-  conn_string: "postgresql://postgres:qwerty@db:65432/test_bankapp?sslmode=disable" # Test database
+  conn_string: "postgresql://postgres:qwerty@localhost:65432/test_bankapp?sslmode=disable" # Connect to test database from host
+  # conn_string: "postgresql://postgres:qwerty@db:65432/test_bankapp?sslmode=disable" # Connect to test database from docker
 web_api:
   internal:
     addr: :58001
