@@ -9,10 +9,10 @@ import (
 
 // Account - DTO for account table
 type Account struct {
-	ID           uuid.UUID `db:"id"`
-	BankClientID string    `db:"bank_client_id"`
-	Currency     string    `db:"currency"`
-	Balance      int32     `db:"balance"`
+	AccountID uuid.UUID `db:"account_id"`
+	ClientID  uuid.UUID `db:"client_id" validate:"required"`
+	Currency  string    `db:"currency" validate:"required"`
+	Balance   int32     `db:"balance" validate:"required"`
 }
 
 // GetAccount returns account by account_id
