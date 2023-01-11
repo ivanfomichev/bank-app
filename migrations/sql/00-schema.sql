@@ -4,9 +4,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE bank_clients
 (
     client_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    identity_field INT CHECK(identity_field > 0),
-    client_name VARCHAR(255) NOT NULL,
-    UNIQUE (client_id, identity_field)
+    identity_field INT UNIQUE CHECK(identity_field > 0),
+    client_name VARCHAR(255) NOT NULL
 );
 
 CREATE TYPE currencies AS ENUM (

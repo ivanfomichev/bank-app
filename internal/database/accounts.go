@@ -33,7 +33,11 @@ func GetAccountByID(ctx context.Context, dbc SQLExecutor, accountID string) (*Ac
 func AddNewAccount(ctx context.Context, dbc SQLExecutor, account *Account) error {
 	err := execInsertObjectQuery(ctx,
 		dbc,
-		`INSERT INTO accounts (id, bank_client_id, currency, balance) VALUES (:id, :bank_client_id, :currency, :balance)`,
+		`INSERT INTO accounts (
+			id, bank_client_id, currency, balance
+		) VALUES (
+			:id, :bank_client_id, :currency, :balance
+		)`,
 		account,
 	)
 	return err

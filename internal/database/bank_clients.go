@@ -10,8 +10,8 @@ import (
 // BankClient - DTO for client table
 type BankClient struct {
 	ClientID      uuid.UUID `db:"client_id"`
-	IdentityField int32     `db:"identity_field" validate:"required"`
-	ClientName    string    `db:"client_name" validate:"required"`
+	IdentityField int32     `db:"identity_field"`
+	ClientName    string    `db:"client_name"`
 }
 
 // GetBankClientByID returns bankClient by client_id
