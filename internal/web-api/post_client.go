@@ -39,12 +39,11 @@ func (env *RouteHandlers) PostBankClient(w http.ResponseWriter, r *http.Request)
 			BadInputResponse(ctx, w, err.Error())
 			return
 		} else {
-			log.Printf("failed to get client from database")
-			err = errors.New("failed to get client from database")
+			log.Printf("failed to add client to database")
+			err = errors.New("failed to add client to database")
 			InternalErrorResponse(ctx, w, err.Error())
 			return
 		}
 	}
-
 	OKResponse(ctx, w, req)
 }

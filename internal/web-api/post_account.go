@@ -37,12 +37,14 @@ func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("bad input")
 		BadInputResponse(ctx, w, "create account failed")
+		return
 	}
 	// validate currency type
 	if ok := validCurr[req.Currency]; !ok {
 		log.Printf("currency not valid")
 		err = errors.New("currency not valid")
 		BadInputResponse(ctx, w, err.Error())
+		return
 	}
 
 	req.AccountID = uuid.New()
@@ -50,6 +52,7 @@ func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("bad input")
 		BadInputResponse(ctx, w, "create account failed")
+		return
 	}
 	err = env.dbclient.AddAccount(ctx, req)
 	if err != nil {
