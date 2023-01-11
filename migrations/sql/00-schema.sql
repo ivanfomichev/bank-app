@@ -24,10 +24,10 @@ CREATE TABLE accounts
     PRIMARY KEY(account_id),
     CONSTRAINT fk_client
         FOREIGN KEY(client_id)
-            REFERENCES bank_clients(bank_client_id)
+            REFERENCES bank_clients(client_id)
             ON DELETE CASCADE
 );
-CREATE INDEX accounts_bank_client_id_idx ON accounts (client_id);
+CREATE INDEX accounts_client_id_idx ON accounts (client_id);
 
 CREATE TYPE transaction_type AS ENUM (
     'deposit',

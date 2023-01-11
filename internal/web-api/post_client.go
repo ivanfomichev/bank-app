@@ -1,6 +1,7 @@
 package webapi
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"net/http"
@@ -19,7 +20,12 @@ func (env *RouteHandlers) PostBankClient(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	err = env.dbclient.GetBankClientByIdentity(ctx, req.IdentityField)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
+		log.Printf("failed to get client from database")
+		err = errors.New("failed to get client from database")
+		InternalErrorResponse(ctx, w, err.Error())
+	}
+	if err != sql.ErrNoRows {
 		log.Printf("client already exists")
 		err = errors.New("client already exists")
 		BadInputResponse(ctx, w, err.Error())

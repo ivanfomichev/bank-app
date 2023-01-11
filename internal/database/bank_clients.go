@@ -31,10 +31,11 @@ func GetBankClientByID(ctx context.Context, dbc SQLExecutor, clientID string) (*
 // GetBankClientByIdentity returns bankClient by identity_field
 func GetBankClientByIdentity(ctx context.Context, dbc SQLExecutor, identityField int32) error {
 	bankClient := new(BankClient)
-	err := dbc.QueryRowxContext(ctx,
+	row := dbc.QueryRowxContext(ctx,
 		`SELECT * FROM bank_clients WHERE identity_field = $1`,
 		identityField,
-	).StructScan(bankClient)
+	)
+	err := row.Scan(bankClient)
 	if err != nil {
 		log.Printf("failed to get bank client from database")
 		return err
