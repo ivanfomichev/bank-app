@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"reflect"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
@@ -20,24 +20,26 @@ var validCurr = map[string]bool{
 func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	clID := chi.URLParam(r, "client_id")
-	// validate bank client
-	client, err := env.dbclient.GetBankClientByID(ctx, clID)
-	if err != nil {
-		log.Printf("failed to get client from database")
-		BadInputResponse(ctx, w, "create account failed")
-	}
-	if reflect.DeepEqual(client, &database.BankClient{}) {
-		log.Printf("no such client")
-		err = errors.New("no clients with specified client_id")
-		BadInputResponse(ctx, w, err.Error())
-	}
-
 	req := new(database.Account)
-	err = readValidateInput(ctx, r.Body, req)
+	err := readValidateInput(ctx, r.Body, req)
 	if err != nil {
 		log.Printf("bad input")
 		BadInputResponse(ctx, w, "create account failed")
 		return
+	}
+	// validate bank client
+	_, err = env.dbclient.GetBankClientByID(ctx, clID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			log.Printf("no such client")
+			err = errors.New("no clients with specified client_id")
+			BadInputResponse(ctx, w, err.Error())
+			return
+		} else {
+			log.Printf("failed to get client from database")
+			BadInputResponse(ctx, w, "create account failed")
+			return
+		}
 	}
 	// validate currency type
 	if ok := validCurr[req.Currency]; !ok {
@@ -48,7 +50,8 @@ func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req.AccountID = uuid.New()
-	req.ClientID, err = uuid.Parse(clID)
+	uid, err := uuid.Parse(clID)
+	req.ClientID = uid
 	if err != nil {
 		log.Printf("bad input")
 		BadInputResponse(ctx, w, "create account failed")

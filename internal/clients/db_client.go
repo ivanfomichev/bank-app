@@ -38,18 +38,6 @@ func (c *Client) GetBankClientByID(ctx context.Context,
 	return bankClient, nil
 }
 
-// GetBankClientByIdentity is a service method to get client
-func (c *Client) GetBankClientByIdentity(ctx context.Context,
-	identityField int32,
-) error {
-	err := database.GetBankClientByIdentity(ctx, c.Db, identityField)
-	if err != nil {
-		log.Printf("get bank client failed")
-		return err
-	}
-	return nil
-}
-
 // AddAccount is a service method to create account
 func (c *Client) AddAccount(ctx context.Context,
 	request *database.Account,
@@ -59,7 +47,7 @@ func (c *Client) AddAccount(ctx context.Context,
 		log.Printf("create account for bank client failed")
 		return err
 	}
-	return  nil
+	return nil
 }
 
 // GetAccount is a service method to get account
