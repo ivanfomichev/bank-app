@@ -9,17 +9,17 @@ import (
 
 // Account - DTO for account table
 type Account struct {
-	ID           uuid.UUID `db:"id"`
-	BankClientID string    `db:"bank_client_id"`
-	Currency     string    `db:"currency"`
-	Balance      int32     `db:"balance"`
+	AccountID uuid.UUID `db:"account_id"`
+	ClientID  uuid.UUID `db:"client_id"`
+	Currency  string    `db:"currency" validate:"required"`
+	Balance   int32     `db:"balance" validate:"required"`
 }
 
 // GetAccount returns account by account_id
 func GetAccountByID(ctx context.Context, dbc SQLExecutor, accountID string) (*Account, error) {
 	account := new(Account)
 	err := dbc.QueryRowxContext(ctx,
-		`SELECT * FROM accounts WHERE id = $1`,
+		`SELECT * FROM accounts WHERE account_id = $1`,
 		accountID,
 	).StructScan(account)
 	if err != nil {
@@ -33,7 +33,11 @@ func GetAccountByID(ctx context.Context, dbc SQLExecutor, accountID string) (*Ac
 func AddNewAccount(ctx context.Context, dbc SQLExecutor, account *Account) error {
 	err := execInsertObjectQuery(ctx,
 		dbc,
-		`INSERT INTO accounts (id, bank_client_id, currency, balance) VALUES (:id, :bank_client_id, :currency, :balance)`,
+		`INSERT INTO accounts (
+			account_id, client_id, currency, balance
+		) VALUES (
+			:account_id, :client_id, :currency, :balance
+		)`,
 		account,
 	)
 	return err
@@ -43,7 +47,7 @@ func AddNewAccount(ctx context.Context, dbc SQLExecutor, account *Account) error
 func UpdateAccountByID(ctx context.Context, dbc SQLExecutor, clientID uuid.UUID, balance int32) error {
 	return updateTableColWithProvidedKey(ctx,
 		dbc,
-		`UPDATE accounts SET balance = $1 WHERE id = $2`,
+		`UPDATE accounts SET balance = $1 WHERE account_id = $2`,
 		balance,
 		clientID,
 	)

@@ -1,15 +1,15 @@
 version: '3.3'
 
 services:
-  bankapp:
-    image: 'leoficus/bankapp:latest'
-    hostname: bankapp
-    ports:
-      - "58001:58001"
-    networks:
-      - app
-    depends_on:
-      - db
+  # bankapp:
+  #   image: 'leoficus/bankapp:latest'
+  #   hostname: bankapp
+  #   ports:
+  #     - "58001:58001"
+  #   networks:
+  #     - app
+  #   depends_on:
+  #     - db
   db:
     image: 'postgres:12'
     hostname: db

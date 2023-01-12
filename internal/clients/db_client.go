@@ -9,6 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var isolationLevel string = "SERIALIZABLE"
+
 // Client is a service object
 type Client struct {
 	Db *sqlx.DB
@@ -17,19 +19,17 @@ type Client struct {
 // AddBankClient is a service method to create client
 func (c *Client) AddBankClient(ctx context.Context,
 	request *database.BankClient,
-) (*database.BankClient, error) {
+) error {
 	err := database.AddNewBankClient(ctx, c.Db, request)
 	if err != nil {
 		log.Printf("create bank client failed")
-		return nil, err
+		return err
 	}
-	return &database.BankClient{
-		ID: request.ID,
-	}, nil
+	return nil
 }
 
 // GetBankClient is a service method to get client
-func (c *Client) GetBankClient(ctx context.Context,
+func (c *Client) GetBankClientByID(ctx context.Context,
 	clientID string,
 ) (*database.BankClient, error) {
 	bankClient, err := database.GetBankClientByID(ctx, c.Db, clientID)
@@ -43,15 +43,13 @@ func (c *Client) GetBankClient(ctx context.Context,
 // AddAccount is a service method to create account
 func (c *Client) AddAccount(ctx context.Context,
 	request *database.Account,
-) (*database.Account, error) {
+) error {
 	err := database.AddNewAccount(ctx, c.Db, request)
 	if err != nil {
 		log.Printf("create account for bank client failed")
-		return nil, err
+		return err
 	}
-	return &database.Account{
-		ID: request.ID,
-	}, nil
+	return nil
 }
 
 // GetAccount is a service method to get account
@@ -79,44 +77,43 @@ func (c *Client) GetTransactions(ctx context.Context) ([]*database.Transaction, 
 // AddTransaction is a service method to create transaction
 func (c *Client) AddTransaction(ctx context.Context,
 	request *database.Transaction,
-) (*database.Transaction, error) {
+) error {
 	switch recType := request.TrType; recType {
 	case "withdraw":
 		{
 			account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
 			if err != nil {
 				log.Printf("account not found")
-				return nil, err
+				return err
 			}
 			if account.Balance >= request.Amount {
 				tx, err := c.Db.BeginTxx(ctx, nil)
 				if err != nil {
 					log.Printf("failed to start db_transaction")
-					return nil, err
+					return err
 				}
+				tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()
-					return nil, err
+					return err
 				}
 				newBalance := account.Balance - request.Amount
 				err = database.UpdateAccountByID(ctx, tx, request.AccountID, newBalance)
 				if err != nil {
 					tx.Rollback()
-					return nil, err
+					return err
 				}
 				err = tx.Commit()
 				if err != nil {
 					log.Printf("failed to commit db_transaction")
-					return nil, err
+					return err
 				}
-				return &database.Transaction{
-					ID: request.ID,
-				}, nil
+				return nil
 			} else {
 				log.Printf("not enough money")
 				err = errors.New("not enough money")
-				return nil, err
+				return err
 			}
 		}
 	case "deposit":
@@ -124,32 +121,31 @@ func (c *Client) AddTransaction(ctx context.Context,
 			account, err := database.GetAccountByID(ctx, c.Db, request.AccountID.String())
 			if err != nil {
 				log.Printf("account not found")
-				return nil, err
+				return err
 			}
 			tx, err := c.Db.BeginTxx(ctx, nil)
 			if err != nil {
 				log.Printf("failed to start db_transaction")
-				return nil, err
+				return err
 			}
+			tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 			err = database.AddNewTransaction(ctx, tx, request)
 			if err != nil {
 				tx.Rollback()
-				return nil, err
+				return err
 			}
 			newBalance := account.Balance + request.Amount
 			err = database.UpdateAccountByID(ctx, tx, request.AccountID, newBalance)
 			if err != nil {
 				tx.Rollback()
-				return nil, err
+				return err
 			}
 			err = tx.Commit()
 			if err != nil {
 				log.Printf("failed to commit db_transaction")
-				return nil, err
+				return err
 			}
-			return &database.Transaction{
-				ID: request.ID,
-			}, nil
+			return nil
 		}
 	case "transfer":
 		{
@@ -157,60 +153,57 @@ func (c *Client) AddTransaction(ctx context.Context,
 			accountFrom, err := database.GetAccountByID(ctx, c.Db, reqId)
 			if err != nil {
 				log.Printf("from account not found")
-				return nil, err
+				return err
 			}
 			accountTo, err := database.GetAccountByID(ctx, c.Db, request.AccountToID.String())
 			if err != nil {
 				log.Printf("to account not found")
-				return nil, err
+				return err
 			}
 			if accountFrom.Currency != accountTo.Currency {
 				log.Printf("transaction for different currencies not allowed")
 				err = errors.New("transaction for different currencies not allowed")
-				return nil, err
+				return err
 			}
 			if request.AccountID == request.AccountToID {
-				return &database.Transaction{
-					ID: request.ID,
-				}, nil
+				return nil
 			}
 			if accountFrom.Balance >= request.Amount {
 				tx, err := c.Db.BeginTxx(ctx, nil)
 				if err != nil {
 					log.Printf("failed to start db_transaction")
-					return nil, err
+					return err
 				}
+				tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()
-					return nil, err
+					return err
 				}
 				newToBalance := accountTo.Balance + request.Amount
 				err = database.UpdateAccountByID(ctx, tx, request.AccountToID, newToBalance)
 				if err != nil {
 					tx.Rollback()
-					return nil, err
+					return err
 				}
 				newFromBalance := accountFrom.Balance - request.Amount
 				err = database.UpdateAccountByID(ctx, tx, request.AccountID, newFromBalance)
 				if err != nil {
 					tx.Rollback()
-					return nil, err
+					return err
 				}
 				err = tx.Commit()
 				if err != nil {
 					log.Printf("failed to commit db_transaction")
-					return nil, err
+					return err
 				}
-				return &database.Transaction{
-					ID: request.ID,
-				}, nil
+				return nil
 			} else {
 				log.Printf("not enough money")
 				err = errors.New("not enough money")
-				return nil, err
+				return err
 			}
 		}
 	}
-	return &database.Transaction{}, nil
+	return nil
 }

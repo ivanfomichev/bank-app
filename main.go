@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	err = makeMigrations(ctx, config)
 	if err != nil {
 		log.Fatal("migrations failed")
