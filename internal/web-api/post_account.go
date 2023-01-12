@@ -37,7 +37,7 @@ func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			log.Printf("failed to get client from database")
-			BadInputResponse(ctx, w, "create account failed")
+			InternalErrorResponse(ctx, w, "create account failed")
 			return
 		}
 	}
@@ -51,12 +51,12 @@ func (env *RouteHandlers) PostAccount(w http.ResponseWriter, r *http.Request) {
 
 	req.AccountID = uuid.New()
 	uid, err := uuid.Parse(clID)
-	req.ClientID = uid
 	if err != nil {
-		log.Printf("bad input")
-		BadInputResponse(ctx, w, "create account failed")
+		log.Printf("can not parse uuid from string")
+		InternalErrorResponse(ctx, w, "create account failed")
 		return
 	}
+	req.ClientID = uid
 	err = env.dbclient.AddAccount(ctx, req)
 	if err != nil {
 		log.Printf("create account failed")

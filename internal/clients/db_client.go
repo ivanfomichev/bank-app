@@ -9,6 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var isolationLevel string = "SERIALIZABLE"
+
 // Client is a service object
 type Client struct {
 	Db *sqlx.DB
@@ -90,6 +92,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 					log.Printf("failed to start db_transaction")
 					return err
 				}
+				tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()
@@ -125,6 +128,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 				log.Printf("failed to start db_transaction")
 				return err
 			}
+			tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 			err = database.AddNewTransaction(ctx, tx, request)
 			if err != nil {
 				tx.Rollback()
@@ -170,6 +174,7 @@ func (c *Client) AddTransaction(ctx context.Context,
 					log.Printf("failed to start db_transaction")
 					return err
 				}
+				tx.Exec("SET TRANSACTION ISOLATION LEVEL " + isolationLevel)
 				err = database.AddNewTransaction(ctx, tx, request)
 				if err != nil {
 					tx.Rollback()

@@ -48,9 +48,9 @@ func AddNewBankClient(ctx context.Context, dbc SQLExecutor, bankClient *BankClie
 	return execInsertObjectQuery(ctx,
 		dbc,
 		`INSERT INTO bank_clients (
-			identity_field, client_name
+			client_id, identity_field, client_name
 		) VALUES (
-			:identity_field, :client_name
+			:client_id, :identity_field, :client_name
 		)`,
 		bankClient,
 	)

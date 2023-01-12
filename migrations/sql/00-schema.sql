@@ -19,7 +19,7 @@ CREATE TABLE accounts
     account_id uuid DEFAULT uuid_generate_v4(),
     client_id  uuid,
     currency   currencies NOT NULL,
-    balance    INTEGER NOT NULL CHECK (balance > 0),
+    balance    INTEGER NOT NULL CHECK (balance >= 0),
     PRIMARY KEY(account_id),
     CONSTRAINT fk_client
         FOREIGN KEY(client_id)

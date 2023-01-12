@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"reflect"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/ivanfomichev/bank-app/internal/database"
@@ -25,27 +25,33 @@ func (env *RouteHandlers) PostTransaction(w http.ResponseWriter, r *http.Request
 		BadInputResponse(ctx, w, "create transaction failed")
 		return
 	}
-	account, err := env.dbclient.GetAccountByID(ctx, req.AccountID.String())
+	_, err = env.dbclient.GetAccountByID(ctx, req.AccountID.String())
 	if err != nil {
-		log.Printf("failed to get account from database")
-		BadInputResponse(ctx, w, "create transaction failed")
-	}
-	if reflect.DeepEqual(account, &database.Account{}) {
-		log.Printf("no such account")
-		err = errors.New("no account with specified account_id")
-		BadInputResponse(ctx, w, err.Error())
+		if strings.Contains(err.Error(), "no rows in result set") {
+			log.Printf("no such account")
+			err = errors.New("no accounts with specified account_id")
+			BadInputResponse(ctx, w, err.Error())
+			return
+		} else {
+			log.Printf("failed to get account from database")
+			BadInputResponse(ctx, w, "create transaction failed")
+			return
+		}
 	}
 
 	if req.TrType == Transfer {
-		account, err := env.dbclient.GetAccountByID(ctx, req.AccountToID.String())
+		_, err := env.dbclient.GetAccountByID(ctx, req.AccountToID.String())
 		if err != nil {
-			log.Printf("failed to get account from database")
-			BadInputResponse(ctx, w, "create transaction failed")
-		}
-		if reflect.DeepEqual(account, &database.Account{}) {
-			log.Printf("no such account")
-			err = errors.New("no account with specified account_id")
-			BadInputResponse(ctx, w, err.Error())
+			if strings.Contains(err.Error(), "no rows in result set") {
+				log.Printf("no such account")
+				err = errors.New("no accounts with specified account_id")
+				BadInputResponse(ctx, w, err.Error())
+				return
+			} else {
+				log.Printf("failed to get account from database")
+				BadInputResponse(ctx, w, "create transaction failed")
+				return
+			}
 		}
 	}
 	req.TransactionID = uuid.New()
